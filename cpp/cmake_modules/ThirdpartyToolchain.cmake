@@ -1127,16 +1127,20 @@ macro(build_boost)
     set(BOOST_BUILD_PRODUCTS ${BOOST_STATIC_SYSTEM_LIBRARY}
                              ${BOOST_STATIC_FILESYSTEM_LIBRARY})
 
-    add_thirdparty_lib(Boost::system
-                       STATIC
-                       "${BOOST_STATIC_SYSTEM_LIBRARY}"
-                       INCLUDE_DIRECTORIES
-                       "${Boost_INCLUDE_DIR}")
-    add_thirdparty_lib(Boost::filesystem
-                       STATIC
-                       "${BOOST_STATIC_FILESYSTEM_LIBRARY}"
-                       INCLUDE_DIRECTORIES
-                       "${Boost_INCLUDE_DIR}")
+    if(NOT TARGET Boost::system)
+      add_thirdparty_lib(Boost::system
+                         STATIC
+                         "${BOOST_STATIC_SYSTEM_LIBRARY}"
+                         INCLUDE_DIRECTORIES
+                         "${Boost_INCLUDE_DIR}")
+    endif()
+    if(NOT TARGET Boost::filesystem)
+      add_thirdparty_lib(Boost::filesystem
+                         STATIC
+                         "${BOOST_STATIC_FILESYSTEM_LIBRARY}"
+                         INCLUDE_DIRECTORIES
+                         "${Boost_INCLUDE_DIR}")
+    endif()
 
     externalproject_add(boost_ep
                         ${EP_COMMON_OPTIONS}
@@ -1147,8 +1151,12 @@ macro(build_boost)
                         CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
                         BUILD_COMMAND ${BOOST_BUILD_COMMAND}
                         INSTALL_COMMAND "")
-    add_dependencies(Boost::system boost_ep)
-    add_dependencies(Boost::filesystem boost_ep)
+    if(TARGET Boost::system)
+      add_dependencies(Boost::system boost_ep)
+    endif()
+    if(TARGET Boost::filesystem)
+      add_dependencies(Boost::filesystem boost_ep)
+    endif()
   else()
     externalproject_add(boost_ep
                         ${EP_COMMON_OPTIONS}
@@ -1158,9 +1166,11 @@ macro(build_boost)
                         URL ${BOOST_SOURCE_URL}
                         URL_HASH "SHA256=${ARROW_BOOST_BUILD_SHA256_CHECKSUM}")
   endif()
-  add_library(Boost::headers INTERFACE IMPORTED)
-  target_include_directories(Boost::headers INTERFACE "${Boost_INCLUDE_DIR}")
-  add_dependencies(Boost::headers boost_ep)
+  if(NOT TARGET Boost::headers)
+    add_library(Boost::headers INTERFACE IMPORTED)
+    target_include_directories(Boost::headers INTERFACE "${Boost_INCLUDE_DIR}")
+    add_dependencies(Boost::headers boost_ep)
+  endif()
   # If Boost is found but one of system or filesystem components aren't found,
   # Boost::disable_autolinking and Boost::dynamic_linking are already defined.
   if(NOT TARGET Boost::disable_autolinking)
