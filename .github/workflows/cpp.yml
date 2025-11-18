@@ -152,11 +152,16 @@ jobs:
         env:
           ARCHERY_DOCKER_USER: ${{ secrets.DOCKERHUB_USER }}
           ARCHERY_DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+          CMAKE_UNITY_BUILD: "ON"
+          ARROW_BUILD_TYPE: "RelWithDebInfo"
         run: |
           # GH-40558: reduce ASLR to avoid ASAN/LSAN crashes
           sudo sysctl -w vm.mmap_rnd_bits=28
           source ci/scripts/util_enable_core_dumps.sh
-          archery docker run ${{ matrix.image }}
+          archery docker run \
+            -e CMAKE_UNITY_BUILD=ON \
+            -e ARROW_BUILD_TYPE=RelWithDebInfo \
+            ${{ matrix.image }}
       - name: Docker Push
         if: >-
           success() &&

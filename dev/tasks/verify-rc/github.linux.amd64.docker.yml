@@ -35,9 +35,14 @@ jobs:
 
       - name: Execute Docker Build
         shell: bash
+        env:
+          CMAKE_UNITY_BUILD: "ON"
+          ARROW_BUILD_TYPE: "RelWithDebInfo"
         run: |
           archery docker run \
             -e VERIFY_VERSION="{{ release|default("") }}" \
+            -e CMAKE_UNITY_BUILD=ON \
+            -e ARROW_BUILD_TYPE=RelWithDebInfo \
             {% if distro == 'almalinux' and target|upper == 'PYTHON' %}
             -e ARROW_GANDIVA=OFF \
             {% endif %}

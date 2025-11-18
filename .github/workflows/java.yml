@@ -92,6 +92,8 @@ jobs:
           archery docker run \
             -e CI=true \
             -e "DEVELOCITY_ACCESS_KEY=$DEVELOCITY_ACCESS_KEY" \
+            -e CMAKE_UNITY_BUILD=ON \
+            -e ARROW_BUILD_TYPE=RelWithDebInfo \
             ${{ matrix.image }}
       - name: Docker Push
         if: >-

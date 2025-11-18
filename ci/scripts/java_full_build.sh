@@ -47,9 +47,13 @@ fi
   gpg --full-generate-key --batch
 
 # build the entire project
-mvn clean \
-    install \
-    -Papache-release \
+# Use package instead of clean+install to preserve Maven cache
+# Skip tests and javadoc for faster builds in CI
+# Use parallel builds with -T 1C (1 thread per core)
+mvn package \
+    -T 1C \
+    -DskipTests \
+    -Dskip.javadoc=true \
     -Parrow-c-data \
     -Parrow-jni \
     -Darrow.cpp.build.dir=$dist_dir \

@@ -37,10 +37,14 @@ jobs:
         shell: bash
         env:
         {{ macros.github_set_sccache_envvars()|indent(8) }}
+          CMAKE_UNITY_BUILD: "ON"
+          ARROW_BUILD_TYPE: "RelWithDebInfo"
         run: |
           source arrow/ci/scripts/util_enable_core_dumps.sh
           archery docker run \
             -e SETUPTOOLS_SCM_PRETEND_VERSION="{{ arrow.no_rc_version }}" \
+            -e CMAKE_UNITY_BUILD=ON \
+            -e ARROW_BUILD_TYPE=RelWithDebInfo \
             {{ flags|default("") }} \
             {{ image }} \
             {{ command|default("") }}
