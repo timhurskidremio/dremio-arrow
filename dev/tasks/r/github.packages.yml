@@ -140,7 +140,8 @@ jobs:
           UBUNTU: {{ '"${{ matrix.ubuntu }}"' }}
         {{ macros.github_set_sccache_envvars()|indent(8) }}
         run: |
-          source arrow/ci/scripts/util_enable_core_dumps.sh
+          sudo sysctl -w kernel.core_pattern="core.%e.%p"
+          ulimit -c unlimited
           archery docker run \
             -e EXTRA_CMAKE_FLAGS="{{ '${{ matrix.extra-cmake-flags }}' }}" \
             {{ '${{ matrix.os }}' }}-cpp-static
@@ -208,7 +209,7 @@ jobs:
       matrix:
         platform:
           - { runs_on: 'windows-latest', name: "Windows"}
-          - { runs_on: macos-15-intel, name: "macOS x86_64"}
+          - { runs_on: macos-12, name: "macOS x86_64"}
           - { runs_on: macos-14, name: "macOS arm64" }
         r_version: [oldrel, release]
     steps:
@@ -359,7 +360,7 @@ jobs:
     runs-on: ubuntu-latest
     container: "rstudio/r-base:4.2-centos7"
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v3
         with:
           name: r-pkg_centos7
       - name: Install DTS Package
@@ -389,7 +390,7 @@ jobs:
       matrix:
         platform:
           - {runs_on: "ubuntu-latest", name: "Linux"}
-          - {runs_on: "macos-15-intel" , name: "macOS"}
+          - {runs_on: "macos-12" , name: "macOS"}
     steps:
       - name: Install R
         uses: r-lib/actions/setup-r@v2
@@ -441,7 +442,7 @@ jobs:
     steps:
       {{ macros.github_checkout_arrow()|indent }}
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Install R
